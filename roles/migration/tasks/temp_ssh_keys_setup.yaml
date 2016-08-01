@@ -1,0 +1,26 @@
+---
+
+- name: "Place the temporary private/public key pair on source machine"
+  copy: src="files/{{ item }}" dest="~/.ssh/temp_{{ item }}" mode=0600
+  with_items:
+    - "id_rsa"
+    - "id_rsa.pub"
+  when: migration_stage == "source"
+
+- name: "Add authorized key on target machine"
+  authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ item }}"
+    state: present
+  with_file:
+    - "files/id_rsa.pub"
+  when: migration_stage == "ssh_prep_target"
+
+- name: "Add authorized key on target machine // target_machine_user"
+  authorized_key:
+    user: "{{ target_machine_user }}"
+    key: "{{ item }}"
+    state: present
+  with_file:
+    - "files/id_rsa.pub"
+  when: migration_stage == "ssh_prep_target"

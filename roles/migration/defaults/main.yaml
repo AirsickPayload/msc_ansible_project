@@ -1,0 +1,41 @@
+---
+
+target_machine_ip: "192.168.121.34"
+target_machine_user: "root"
+
+mysql_migration_enable: True
+nginx_migration_enable: True
+php_migration_enable: True
+
+nginx_official_repo: True # Use the official repo provided by nginx.org
+nginx_use_epel: False # Use the EPEL nginx package instead of the official one
+
+mysql_version: ""
+nginx_version: ""
+php7_install: True
+
+mysql_deb_version: "={{ mysql_version }}"
+mysql_rpm_version: "-{{ mysql_version }}"
+
+nginx_deb_version: "={{ nginx_version }}"
+nginx_rpm_version: "-{{ nginx_version }}"
+
+migration_stage: "source"
+
+source_mysql_user: "root"
+source_mysql_password: "" #leave as empty string if none is needed
+source_mysql_dump_path: "/tmp/mysqldump.sql"
+
+source_nginx_conf_dir: "/etc/nginx/"
+
+target_mysql_user: "root"
+target_mysql_password: ""
+target_mysql_dump_path: "/tmp/mysqldump.sql"
+
+target_nginx_conf_dir: "/etc/nginx/"
+
+unix_commands:
+  - "sed"
+  - "grep"
+  - "find"
+  - "rsync"

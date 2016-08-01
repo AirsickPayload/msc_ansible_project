@@ -1,0 +1,70 @@
+---
+
+- name: set package name for MySQL(centos); specific version
+  set_fact:
+    mysql_package_name: "mariadb-server{{ mysql_rpm_version }}"
+  when: ansible_distribution == "CentOS" and mysql_version != ""
+
+- name: set package name for MySQL(centos)
+  set_fact:
+    mysql_package_name: "mariadb-server"
+  when: ansible_distribution == "CentOS" and mysql_version == ""
+
+- name: set package name for MySQL(Fedora); specific version
+  set_fact:
+    mysql_package_name: "mysql-server{{ mysql_rpm_version }}"
+  when: ansible_distribution == "Fedora" and mysql_version != ""
+
+- name: set package name for MySQL(Fedora)
+  set_fact:
+    mysql_package_name: "mysql-server"
+  when: ansible_distribution == "Fedora" and mysql_version == ""
+
+- name: set package name for MySQL(Ubuntu); specific version
+  set_fact:
+    mysql_package_name: "mysql-server{{ mysql_deb_version }}"
+  when: ansible_distribution == "Ubuntu" and mysql_version != ""
+
+- name: set package name for MySQL(Ubuntu)
+  set_fact:
+    mysql_package_name: "mysql-server"
+  when: ansible_distribution == "Ubuntu" and mysql_version == ""
+
+- name: set package name for Nginx(CentOS & Fedora); specific version
+  set_fact:
+    nginx_package_name: "nginx{{ nginx_rpm_version }}"
+  when: ansible_distribution == "Fedora" or ansible_distribution == "CentOS" and nginx_version != ""
+
+- name: set package name for Nginx(CentOS & Fedora)
+  set_fact:
+    nginx_package_name: "nginx"
+  when: ansible_distribution == "Fedora" or ansible_distribution == "CentOS" and nginx_version == ""
+
+- name: set package name for Nginx(Ubuntu); specific version
+  set_fact:
+    nginx_package_name: "nginx{{ nginx_deb_version }}"
+  when: ansible_distribution == "Ubuntu" and nginx_version != ""
+
+- name: set package name for Nginx(Ubuntu)
+  set_fact:
+    nginx_package_name: "nginx"
+  when: ansible_distribution == "Ubuntu" and nginx_version == ""
+
+- name: set package name for PHP7 (CentOS)
+  set_fact:
+    php_package_name: "php70w"
+  when: ansible_distribution == "CentOS" and php7_install|bool
+
+- name: set package name for PHP7 (Ubuntu)
+  set_fact:
+    php_package_name: "php7.0"
+  when: ansible_distribution == "Ubuntu" and php7_install|bool
+
+- name: set package name for PHP5 (Ubuntu/Fedora/CentOS)
+  set_fact:
+    php_package_name: "php"
+  when: not php7_install
+
+- name: set package name for PHP-fpm
+  set_fact:
+    php_fpm_package_name: "{{ php_package_name + '-fpm'}}"

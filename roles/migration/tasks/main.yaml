@@ -1,0 +1,39 @@
+---
+
+- name: "System compatibility check"
+  fail: msg="Currently only Linux-based systems are supported!"
+  when: ansible_system != "Linux"
+
+- name: "Place temporary ssh keys for proper communication between source and target machine"
+  include: temp_ssh_keys_setup.yaml
+
+- name: include service_names.yaml in order to determine the right service name for OS's distribution
+  include: service_names.yaml
+  when: migration_stage == "target"
+
+- name: include package_names.yaml in order to determine the right package name for OS's distribution
+  include: package_names.yaml
+  when: migration_stage == "target"
+
+- name: include yaml for checking available migration commands
+  include: command_checks.yaml
+  when: migration_stage != "ssh_prep_target"
+
+- include: source/mysql.yaml
+  when: mysql_migration_enable|bool and migration_stage == "source"
+
+- include: target/mysql.yaml
+  when: mysql_migration_enable|bool and migration_stage == "target"
+
+- include: source/nginx.yaml
+  when: nginx_migration_enable == 1 and migration_stage == "source"
+
+- include: target/nginx.yaml
+  when: nginx_migration_enable == 1 and migration_stage == "target"
+
+- include: target/php.yaml
+  when: php_migration_enable == 1 and migration_stage == "target"
+
+- name: clean up ssh keys
+  include: temp_ssh_keys_cleanup.yaml
+  when: migration_stage == "source" or migration_stage == "target"

@@ -1,0 +1,8 @@
+---
+
+- name: install nginx if it's not present on the machine
+  include: nginx_install.yaml
+  when: nginxcheck|failed
+
+- name: restart the service after 'source' migration stage
+  service: name="{{ nginx_service_name }}" state=restarted enabled=yes

@@ -1,0 +1,8 @@
+mysql_migration_enable: True
+nginx_migration_enable: True
+php_migration_enable: True
+nginx_official_repo: True
+source_mysql_user: "root"
+target_mysql_user: "root"
+source_nginx_conf_dir: "/etc/nginx/"
+target_machine_ip: "192.168.121.69"

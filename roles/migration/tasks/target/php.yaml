@@ -1,0 +1,8 @@
+---
+
+- name: Include installation steps if php's not installed
+  include: php_install.yaml
+  when: phpcheck|failed
+
+- name: enable PHP-fpm service
+  service: name="{{ phpfpm_service_name }}" state=restarted enabled=yes

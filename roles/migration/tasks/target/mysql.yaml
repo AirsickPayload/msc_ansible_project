@@ -1,0 +1,17 @@
+---
+
+- name: install mysql if it's not present
+  package: name="{{ item }}" state=latest
+  with_items: "{{ mysql_package_name }}"
+  when: mysqlcheck|failed
+
+- name: ensure that mysql service is running
+  service: name="{{ mysql_service_name }}" state=started enabled=yes
+
+- name: import the mysql dump from source machine
+  shell: "mysql --user {{ target_mysql_user }} --password {{ target_mysql_password }} < {{ target_mysql_dump_path }}"
+  when: target_mysql_password != ""
+
+- name: import the mysql dump from source machine(empty password field)
+  shell: "mysql --user {{ target_mysql_user }} < {{ target_mysql_dump_path }}"
+  when: target_mysql_password == ""

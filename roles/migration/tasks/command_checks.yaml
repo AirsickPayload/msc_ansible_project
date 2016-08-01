@@ -1,0 +1,23 @@
+---
+
+- name: Check if mysql exists/is installed
+  shell: "command -v mysql > /dev/null 2>&1"
+  register: mysqlcheck
+  ignore_errors: True
+  when: mysql_migration_enable|bool
+
+- name: Check if nginx exists/is installed
+  shell: "command -v nginx > /dev/null 2>&1"
+  register: nginxcheck
+  ignore_errors: True
+  when: nginx_migration_enable|bool
+
+- name: Check if PHP exists/is installed
+  shell: "command -v php > /dev/null 2>&1"
+  register: phpcheck
+  ignore_errors: True
+  when: php_migration_enable|bool
+
+- name: Check if basic unix commands are available
+  shell: "command -v {{ item }} > /dev/null 2>&1"
+  with_items: " {{ unix_commands }} "

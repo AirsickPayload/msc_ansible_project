@@ -1,0 +1,21 @@
+---
+
+galaxy_info:
+  author: "Alan Matuszczak"
+  license: BSD
+  min_ansible_version: 2.0
+  platforms:
+   - name: EL
+     versions:
+      - 7
+   - name: Fedora
+     versions:
+      - 24
+   - name: Ubuntu
+     versions:
+      - trusty
+  categories:
+   - web
+   - system
+allow_duplicates: yes
+dependencies: []

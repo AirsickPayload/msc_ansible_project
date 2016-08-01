@@ -1,0 +1,26 @@
+---
+
+- name: "Ensure that temp ssh keys don't exist on the machines"
+  file: path="~/.ssh/temp_{{ item }}" state=absent
+  with_items:
+    - "id_rsa"
+    - "id_rsa.pub"
+
+- name: "Remove temp key's autorization"
+  authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ item }}"
+    state: absent
+    exclusive: no
+  with_file:
+    - "files/id_rsa.pub"
+
+- name: "Remove temp key's autorization (target_machine_user)"
+  authorized_key:
+    user: "{{ target_machine_user }}"
+    key: "{{ item }}"
+    state: absent
+    exclusive: no
+  with_file:
+    - "files/id_rsa.pub"
+  when: migration_stage == "target"

@@ -1,0 +1,14 @@
+---
+
+- fail: msg="MySQL migration enabled but MySQL is not installed no source machine!"
+  when: mysqlcheck|failed
+
+- name: create a mysql dump
+  shell: "mysqldump --user={{ source_mysql_user }} --password={{ source_mysql_password }} --opt --all-databases > {{ source_mysql_dump_path }}"
+
+- name: copy the dump over to the target machine
+  shell: "rsync -avzh -e 'ssh -o StrictHostKeyChecking=no -i {{ ansible_env.HOME }}/.ssh/temp_id_rsa' {{ source_mysql_dump_path }} {{ target_machine_user }}@{{ target_machine_ip }}:{{ target_mysql_dump_path }} warn=no"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: remove database dump
+  file: path="{{ source_mysql_dump_path }}" state=absent

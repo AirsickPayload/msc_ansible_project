@@ -1,0 +1,20 @@
+---
+
+- name: set service name for mysql(centos)
+  set_fact:
+    mysql_service_name: "mariadb"
+  when: ansible_distribution == "CentOS"
+
+- name: set service name for mysql(Fedora)
+  set_fact:
+    mysql_service_name: "mysql"
+  when: ansible_distribution == "Fedora" or ansible_distribution == "Ubuntu"
+
+- name: set service name for nginx(Fedora & Centos)
+  set_fact:
+    nginx_service_name: "nginx"
+  when: ansible_distribution == "CentOS" or ansible_distribution == "Fedora" or ansible_distribution == "Ubuntu"
+
+- name: set service name for PHP-fpm(CentOS/Fedora/Ubuntu)
+  set_fact:
+    phpfpm_service_name: "php-fpm"

@@ -1,0 +1,23 @@
+---
+
+- fail: msg="Nginx migration enabled but Nginx is not installed on source machine!"
+  when: nginxcheck|failed
+
+- name: copy whole nginx configuration directory over to the target machine
+  shell: "rsync -avrzh -e 'ssh -o StrictHostKeyChecking=no -i {{ ansible_env.HOME }}/.ssh/temp_id_rsa' {{ source_nginx_conf_dir }}/ {{ target_machine_user }}@{{ target_machine_ip }}:{{ target_nginx_conf_dir }}/ warn=no"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: get all content root directories listed in nginx's conf files
+  shell: find "{{ source_nginx_conf_dir }}" -name "*.conf" -exec cat {} \; | grep -e "^\s*root\s*/*.*;" | sed "s|root||g" | tr -d " ;"
+  register: nginx_roots
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: ensure that found paths of root directories exist on target machine
+  shell: "ssh -i {{ ansible_env.HOME }}/.ssh/temp_id_rsa -o StrictHostKeyChecking=no {{ target_machine_user }}@{{ target_machine_ip }} mkdir -p {{ item }}"
+  with_items: "{{ nginx_roots.stdout_lines }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: transfer each root directory to target machine
+  shell: "rsync -avrzh -e 'ssh -o StrictHostKeyChecking=no -i {{ ansible_env.HOME }}/.ssh/temp_id_rsa' {{ item }}/ {{ target_machine_user }}@{{ target_machine_ip }}:{{ item }} warn=no"
+  with_items: "{{ nginx_roots.stdout_lines }}"
+  delegate_to: "{{ inventory_hostname }}"

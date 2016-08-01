@@ -1,0 +1,41 @@
+- hosts: all
+  vars:
+    packages:
+      - "mariadb-server"
+      - "epel-release"
+      - "nginx"
+      - "php"
+      - "php-fpm"
+  tasks:
+    - name: install mariadb(mysql drop-in replacement)
+      become: yes
+      shell: "yum install {{ item }} -y warn=no"
+      with_items: "{{ packages }}"
+
+    - name: enable & start mariadb
+      become: yes
+      shell: systemctl enable mariadb && systemctl start mariadb
+
+    - name: import dataset
+      shell: mysql -u root < ~/mysqldataset.sql
+      ignore_errors: yes
+
+    - name: copy nginx config
+      become: yes
+      copy: src=nginx.conf dest="/etc/nginx/nginx.conf"
+
+    - name: copy index.html
+      become: yes
+      copy: src=index.html dest="/usr/share/nginx/html/index.html"
+
+    - name: copy phpcheck page
+      become: yes
+      copy: src=phpcheck.php dest="/usr/share/nginx/html/phpcheck.php"
+
+    - name: enable & start nginx
+      become: yes
+      shell: systemctl enable nginx && systemctl restart nginx
+
+    - name: enable & start PHP-fpm
+      become: yes
+      shell: systemctl enable php-fpm && systemctl restart php-fpm

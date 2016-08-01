@@ -1,0 +1,26 @@
+---
+# THIS FILE CONTAINS MODIFIED CODE (UNDER BSD LICENSE) FOUND IN https://github.com/jdauphant/ansible-role-nginx, AUTHORS ARE AS FOLLOWS:
+# Original : Benno Joy
+# Modified by : DAUPHANT Julien
+
+- name: Install the selinux python module
+  yum: name=libselinux-python state=present
+  when: ansible_os_family == "RedHat"
+
+- name: Install the epel packages
+  yum: name=epel-release state=present
+  when: nginx_use_epel|bool and ansible_os_family == "RedHat"
+
+- name: Ensure RPM official nginx key is present on the machine
+  rpm_key: key=http://nginx.org/keys/nginx_signing.key
+  when: ansible_os_family == 'RedHat' and nginx_official_repo|bool
+
+- name: Ensure YUM official nginx repository is available on the machine
+  template: src=roles/migration/templates/nginx.yum_repo.j2 dest=/etc/yum.repos.d/nginx.repo
+  when: ansible_os_family == 'RedHat' and nginx_official_repo|bool
+
+- name: Install the nginx packages
+  yum: name="{{ nginx_package_name }}" state=present enablerepo={{ "nginx" if nginx_official_repo else "" }}
+  when: ansible_os_family == 'RedHat'
+
+- debug: msg="On rpm-based distros you might have to run the role once again if you are using the default /usr/share/nginx/html path - freshly installed package probably replaced the index.html file with the default one!"

@@ -1,0 +1,19 @@
+---
+
+- hosts: db_target
+  roles:
+    - { role: migration, migration_stage: "ssh_prep_target" }
+
+- hosts: db_source
+  vars_files:
+    - migration_vars.yaml
+  roles:
+    - { role: migration,
+        migration_stage: "source" }
+
+- hosts: db_target
+  vars_files:
+    - migration_vars.yaml
+  roles:
+    - { role: migration,
+        migration_stage: "target" }

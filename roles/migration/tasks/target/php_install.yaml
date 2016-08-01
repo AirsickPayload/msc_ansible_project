@@ -1,0 +1,23 @@
+---
+
+- name: Install the epel repo package [CentOS - php7]
+  yum: name=epel-release state=present
+  when: ansible_os_family == "CentOS"
+
+- name: Install the webtactic repo package [CentOS - php7]
+  yum: name=https://mirror.webtatic.com/yum/el7/webtatic-release.rpm state=present
+  when: ansible_distribution == "CentOS" and php7_install|bool
+
+- name: Install the Remi's repo package [Fedora - php7]
+  dnf: name=http://rpms.remirepo.net/fedora/remi-release-24.rpm state=present
+  when: ansible_distribution== "Fedora" and php7_install|bool
+
+- name: Enable the ondrej's ppa php7 repo [Ubuntu - php7]
+  apt_repository: repo="ppa:ondrej/php-7.0" state=present
+  when: ansible_distribution == "Ubuntu" and php7_install|bool
+
+- name: Install PHP and PHP-fpm
+  package: name="{{ item }}" state=present
+  with_items:
+    - "{{ php_package_name }}"
+    - "{{ php_fpm_package_name }}"

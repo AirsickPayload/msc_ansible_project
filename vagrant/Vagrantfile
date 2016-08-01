@@ -1,0 +1,46 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure(2) do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  #config.vm.box = "centos/7"
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  # config.vm.box_check_update = false
+  vagrant_root = File.dirname(__FILE__)
+  ssh_pub_key = File.readlines("#{vagrant_root}/vagrant_rsa.pub").first.strip
+  #config.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /root/.ssh/authorized_keys"
+  config.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys", privileged: false
+  config.vm.provision 'shell', inline: "mkdir -p /root/.ssh", privileged: true
+  config.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /root/.ssh/authorized_keys", privileged: true
+  config.vm.define "db_source" do |db_source|
+    #db_source.vm.network "private_network", ip: "192.168.121.199"
+  #  db_source.vm.provision 'file', source: "~/.ssh/id_ed25519", destination: "/home/vagrant/.ssh/id_ed25519"
+    db_source.vm.provision 'file', source: "./mysqldataset.sql", destination: "/home/vagrant/mysqldataset.sql"
+  #  db_source.vm.provision 'file', source: "./source_ssh_config", destination: "/home/vagrant/.ssh/config"
+  #  db_source.vm.provision 'shell', inline: "cat /home/vagrant/.ssh/config >> /root/.ssh/config", privileged: true
+    #db_source.vm.provision 'shell', inline: "cat /home/vagrant/.ssh/id_ed25519 >> /root/.ssh/id_ed25519", privileged: true
+  #  db_source.vm.provision 'shell', inline: "chmod 0600 /root/.ssh/id_ed25519", privileged: true
+    db_source.vm.box = "centos/7"
+    db_source.vm.provision "ansible" do |ansible|
+      ansible.verbose = "v"
+      ansible.playbook= "setup_db.yaml"
+    end
+  end
+
+  config.vm.define "db_target" do |db_target|
+    db_target.vm.box = "centos/7"
+    #db_target.vm.network "private_network", ip: "192.168.121.200"
+  end
+
+end
